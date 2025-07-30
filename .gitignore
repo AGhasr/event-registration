@@ -31,3 +31,23 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Maven
+target/
+*.log
+*.jar
+*.war
+
+# OS
+.DS_Store
+Thumbs.db
+
+# H2 Database (only if using persisted H2 locally)
+*.mv.db
+*.trace.db
+
+# Spring Boot DevTools
+.spring-boot-devtools.properties
+
+# Test reports
+surefire-reports/

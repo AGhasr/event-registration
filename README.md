@@ -32,7 +32,7 @@ A Spring Boot web application for managing events with user registration, login,
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/event-registration-app.git
+git clone https://github.com/AGhasr/event-registration.git
 cd event-registration-app
 ```
 
@@ -57,22 +57,16 @@ http://localhost:8080
 | admin    | admin   | ADMIN |
 
 
-📸 Screenshots (Add when ready)
-Home Page:
-
-Admin Event Creation:
-
-Registration Form:
-
 🗂 Project Structure
 ```bash
 
-src/main/java/com/example/eventregistration
+src/main/java/org/example/eventregistration
 ├── controller   # Web controllers (Event, Auth)
 ├── model        # Entity classes (User, Event)
 ├── repository   # Spring Data JPA Repositories
 ├── config       # Security & initial data config
-└── Application.java
+└── EventRegistrationApplication.java
+
 ```
 Templates are in:
 src/main/resources/templates
