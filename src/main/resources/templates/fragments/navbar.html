@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Navigation Fragment -->
+<div th:fragment="nav">
+    <a href="/">All Events</a> |
+    <a href="/my-events">My Events</a> |
+    <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/admin/new">Create Event</a> |
+    <a href="/logout">Logout</a>
+</div>
+<hr>
+
+</body>
+</html>

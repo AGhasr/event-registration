@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Create Event</title></head>
+<body>
+
+<div th:replace="fragments/navbar :: nav"></div>
+
+<h2>Create New Event</h2>
+<form th:action="@{/admin/new}" method="post" th:object="${event}">
+    <label>Title: <input type="text" th:field="*{title}" /></label><br>
+    <label>Description: <input type="text" th:field="*{description}" /></label><br>
+    <label>Date: <input type="date" th:field="*{date}" /></label><br>
+    <button type="submit">Save</button>
+</form>
+<a href="/">Cancel</a>
+</body>
+</html>
