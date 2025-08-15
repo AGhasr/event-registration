@@ -2,6 +2,12 @@
 
 A Spring Boot application for managing events with **both web (Thymeleaf)** and **REST API** access, now secured using **JWT authentication**.
 
+## 🌟 **[Live Demo](https://event-registration-app-orzo.onrender.com)**
+
+**Default login credentials:**
+- Username: `admin`
+- Password: `admin`
+
 ---
 
 ## 📌 Features
@@ -43,6 +49,11 @@ You can run the application immediately with Docker without cloning or building 
 **Linux/macOS:**
 ```bash
 openssl rand -base64 32
+```
+
+**Or using Node.js:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 #### 2. Run with Docker (replace `YOUR_GENERATED_SECRET` with the secret from step 1):
