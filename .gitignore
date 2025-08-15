@@ -51,3 +51,5 @@ Thumbs.db
 
 # Test reports
 surefire-reports/
+
+.env

@@ -26,6 +26,7 @@ A Spring Boot application for managing events with **both web (Thymeleaf)** and 
 - Thymeleaf (template engine)
 - Bootstrap 5 (basic responsive design)
 - Maven
+- Docker
 
 ---
 
@@ -44,24 +45,42 @@ mvn clean install
 
 ### 🔑 Setting the JWT Secret
 
-Before running the app, you must set the environment variable `JWT_SECRET`:
+You must set a secure secret key for JWT.  
+Create a `.env` file in the project root:
 
-- Linux/macOS:
-```bash
-export JWT_SECRET="your-very-long-base64-secret=="
 ```
-3. **Run the application**
+JWT_SECRET=your-generated-secret
+```
+
+#### Generate a strong secret:
+
+**Linux/macOS:**
+```bash
+openssl rand -base64 32
+```
+
+## 4. Run the application (local)
+
 ```bash
 mvn spring-boot:run
 ```
 
-4. **Access the web app**
-```
-http://localhost:8080
+Or with Docker:
+
+```bash
+docker build -t event-registration-app .
+docker run --env-file .env -p 8080:8080 event-registration-app
 ```
 
-5. **Test the REST API (JWT required)**  
-   Example: Register
+## 5. Access the app
+
+* Web app: http://localhost:8080
+* REST API: requires JWT token
+
+## 🔐 REST API Examples
+
+### Register
+
 ```http
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
@@ -72,7 +91,8 @@ Content-Type: application/json
 }
 ```
 
-Example: Login (get JWT token)
+### Login (get JWT token)
+
 ```http
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
@@ -82,12 +102,20 @@ Content-Type: application/json
   "password": "1234"
 }
 ```
-Response will contain the `token` — use it in the Authorization header for API requests:
+
+**Response:**
+
+```json
+{
+  "token": "your.jwt.token"
+}
+```
+
+Use the token for authorized requests:
+
 ```
 Authorization: Bearer <token>
 ```
-
----
 
 ## 👥 Default Web Users
 
@@ -95,9 +123,8 @@ Authorization: Bearer <token>
 |----------|----------|-------|
 | admin    | admin    | ADMIN |
 
----
-
 ## 🗂 Project Structure
+
 ```
 src/main/java/org/example/eventregistration
 ├── config       # Security config, JWT filter, data loader
@@ -110,6 +137,7 @@ src/main/java/org/example/eventregistration
 ```
 
 Templates for the web UI are in:
+
 ```
 src/main/resources/templates
 ```

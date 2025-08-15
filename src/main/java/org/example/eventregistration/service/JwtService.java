@@ -12,7 +12,7 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${JWT_SECRET}")
+    @Value("${JWT_SECRET:dev-default-key}")
     private String secretKey;
 
     private Key signingKey;
