@@ -2,6 +2,8 @@
 
 A Spring Boot application for managing events with **both web (Thymeleaf)** and **REST API** access, now secured using **JWT authentication**.
 
+---
+
 ## 📌 Features
 
 - Public list of upcoming events
@@ -32,55 +34,57 @@ A Spring Boot application for managing events with **both web (Thymeleaf)** and 
 
 ## 🎯 How to Run the Application
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/AGhasr/event-registration.git
-cd event-registration-app
-```
+### 🐳 Quick Start with Docker (Recommended)
 
-2. **Build the project**
-```bash
-mvn clean install
-```
+You can run the application immediately with Docker without cloning or building anything:
 
-### 🔑 Setting the JWT Secret
-
-You must set a secure secret key for JWT.  
-Create a `.env` file in the project root:
-
-```
-JWT_SECRET=your-generated-secret
-```
-
-#### Generate a strong secret:
+#### 1. Generate a secure JWT secret:
 
 **Linux/macOS:**
 ```bash
 openssl rand -base64 32
 ```
 
-## 4. Run the application (local)
+#### 2. Run with Docker (replace `YOUR_GENERATED_SECRET` with the secret from step 1):
 
 ```bash
+docker run -e JWT_SECRET="YOUR_GENERATED_SECRET" -p 8080:8080 aghasr/event-registration-app:latest
+```
+
+⚠️ **Do not use short strings like `1234`. JWT requires at least a 256-bit key for HS256 signing.**
+
+---
+
+### 🔧 Local Development (Optional)
+
+If you want to modify the code:
+
+#### 1. Clone the repository
+```bash
+git clone https://github.com/AGhasr/event-registration.git
+cd event-registration-app
+```
+
+#### 2. Create a `.env` file with your JWT secret
+```bash
+echo "JWT_SECRET=$(openssl rand -base64 32)" > .env
+```
+
+#### 3. Build and run
+```bash
+mvn clean install
 mvn spring-boot:run
 ```
 
-Or with Docker:
+### 3. Access the application
 
-```bash
-docker build -t event-registration-app .
-docker run --env-file .env -p 8080:8080 event-registration-app
+```
+http://localhost:8080
 ```
 
-## 5. Access the app
+### 4. Test the REST API (JWT required)
 
-* Web app: http://localhost:8080
-* REST API: requires JWT token
-
-## 🔐 REST API Examples
-
-### Register
-
+#### Register:
 ```http
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
@@ -91,8 +95,7 @@ Content-Type: application/json
 }
 ```
 
-### Login (get JWT token)
-
+#### Login (get JWT token):
 ```http
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
@@ -103,16 +106,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-
-```json
-{
-  "token": "your.jwt.token"
-}
-```
-
-Use the token for authorized requests:
-
+Response will contain the token — use it in the Authorization header for API requests:
 ```
 Authorization: Bearer <token>
 ```
@@ -137,7 +131,6 @@ src/main/java/org/example/eventregistration
 ```
 
 Templates for the web UI are in:
-
 ```
 src/main/resources/templates
 ```
