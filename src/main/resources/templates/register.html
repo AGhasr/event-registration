@@ -1,24 +1,95 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Register</title></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - EventHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .register-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .password-strength {
+            height: 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
 <body>
-<h2>Register</h2>
-<form th:action="@{/register}" th:object="${user}" method="post">
-    <div>
-        <label>Username:</label>
-        <input type="text" th:field="*{username}" />
-        <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="register-card p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h2 class="fw-bold">Join EventHub</h2>
+                    <p class="text-muted">Create your account to start discovering events</p>
+                </div>
+
+                <form th:action="@{/register}" th:object="${user}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user me-2"></i>Username
+                        </label>
+                        <input type="text" th:field="*{username}"
+                               class="form-control form-control-lg"
+                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''"
+                               placeholder="Choose a username" required>
+                        <div th:if="${#fields.hasErrors('username')}"
+                             class="invalid-feedback" th:errors="*{username}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <input type="password" th:field="*{password}"
+                               class="form-control form-control-lg"
+                               th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                               placeholder="Create a password" required>
+                        <div th:if="${#fields.hasErrors('password')}"
+                             class="invalid-feedback" th:errors="*{password}">
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Password should be at least 4 characters long
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="fas fa-rocket me-2"></i>Create Account
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="mb-0">Already have an account?</p>
+                    <a href="/login" class="text-decoration-none">
+                        <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                    </a>
+                </div>
+
+
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label>Password:</label>
-        <input type="password" th:field="*{password}" />
-        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
-    </div>
-
-    <button type="submit">Register</button>
-</form>
-
-<a href="/login">Already have an account?</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
