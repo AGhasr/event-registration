@@ -48,7 +48,7 @@ You can run the application immediately with Docker without cloning or building 
 
 **Linux/macOS:**
 ```bash
-openssl rand -base64 32
+openssl rand -base64 64
 ```
 
 **Or using Node.js:**
@@ -78,7 +78,7 @@ cd event-registration-app
 
 #### 2. Create a `.env` file with your JWT secret
 ```bash
-echo "JWT_SECRET=$(openssl rand -base64 32)" > .env
+echo "JWT_SECRET=$(openssl rand -base64 64)" > .env
 ```
 
 #### 3. Build and run
