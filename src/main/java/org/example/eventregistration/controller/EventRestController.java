@@ -5,6 +5,7 @@ import org.example.eventregistration.model.Event;
 import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.EventRepository;
 import org.example.eventregistration.repository.UserRepository;
+import org.example.eventregistration.service.EventService;
 import org.example.eventregistration.service.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,20 +17,16 @@ import java.util.List;
 @RequestMapping("/api/events")
 public class EventRestController {
 
-    private final EventRepository eventRepo;
-    private final UserRepository userRepo;
-    private final JwtService jwtService;
+    private final EventService eventService;
 
-    public EventRestController(EventRepository eventRepo, UserRepository userRepo, JwtService jwtService) {
-        this.eventRepo = eventRepo;
-        this.userRepo = userRepo;
-        this.jwtService = jwtService;
+    public EventRestController(EventService eventService) {
+        this.eventService = eventService;
     }
 
     // GET /api/events
     @GetMapping
     public List<EventDTO> getAllUpcomingEvents() {
-        return eventRepo.findAll()
+        return eventService.getUpcomingEvents()
                 .stream()
                 .map(e -> new EventDTO(
                         e.getId(),
@@ -43,17 +40,13 @@ public class EventRestController {
     @PostMapping("/register/{eventId}")
     public ResponseEntity<String> registerForEvent(@PathVariable Long eventId) {
         // Get currently authenticated username from Spring context
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepo.findByUsername(username).orElseThrow();
-        Event event = eventRepo.findById(eventId).orElseThrow();
-
-        if (!user.getRegisteredEvents().contains(event)) {
-            user.getRegisteredEvents().add(event);
-            userRepo.save(user);
+        try {
+            eventService.registerUserForEvent(username, eventId);
             return ResponseEntity.ok("Registered successfully.");
-        } else {
-            return ResponseEntity.badRequest().body("Already registered.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -61,11 +54,9 @@ public class EventRestController {
     @GetMapping("/mine")
     public List<EventDTO> getMyRegisteredEvents() {
 
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepo.findByUsername(username).orElseThrow();
-
-        return user.getRegisteredEvents()
+        return eventService.getUserEvents(username)
                 .stream()
                 .map(e -> new EventDTO(
                         e.getId(),
@@ -79,17 +70,13 @@ public class EventRestController {
     //  /api/events/unregister/3
     @PostMapping("/unregister/{eventId}")
     public ResponseEntity<String> unregisterFromEvent(@PathVariable Long eventId) {
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepo.findByUsername(username).orElseThrow();
-        Event event = eventRepo.findById(eventId).orElseThrow();
-
-        if (user.getRegisteredEvents().contains(event)) {
-            user.getRegisteredEvents().remove(event);
-            userRepo.save(user);
+        try {
+            eventService.unregisterUserFromEvent(username, eventId);
             return ResponseEntity.ok("Unregistered successfully.");
-        } else {
-            return ResponseEntity.badRequest().body("You were not registered for this event.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

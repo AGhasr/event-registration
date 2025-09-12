@@ -3,17 +3,14 @@ package org.example.eventregistration.config;
 import org.example.eventregistration.model.Event;
 import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.EventRepository;
-import jakarta.annotation.PostConstruct;
 import org.example.eventregistration.repository.UserRepository;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-/**
- * Loads initial data into the database after application startup.
- * Creates a default admin user and some sample events.
- */
 @Component
 public class DataLoader {
 
@@ -27,7 +24,7 @@ public class DataLoader {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void loadData() {
         // Create admin if not exists
         if (userRepo.findByUsername("admin").isEmpty()) {
@@ -38,10 +35,9 @@ public class DataLoader {
             userRepo.save(admin);
         }
 
-
+        // Fix: Use the correct constructor parameters (title, description, date)
         repo.save(new Event("Spring Boot Workshop", "Learn Spring Boot in 1 day", LocalDate.now().plusDays(5)));
         repo.save(new Event("Docker Basics", "Get started with containers", LocalDate.now().plusDays(10)));
         System.out.println("Default admin and events created.");
-
     }
 }

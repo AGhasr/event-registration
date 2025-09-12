@@ -5,6 +5,7 @@ import org.example.eventregistration.model.Event;
 import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.EventRepository;
 import org.example.eventregistration.repository.UserRepository;
+import org.example.eventregistration.service.EventService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -22,12 +23,10 @@ import java.util.List;
 @Controller
 public class EventController {
 
-    private final UserRepository userRepo;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
 
-    public EventController(UserRepository userRepo, EventRepository eventRepository) {
-        this.userRepo = userRepo;
-        this.eventRepository = eventRepository;
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
     }
 
 
@@ -38,17 +37,11 @@ public class EventController {
     @PostMapping("/registerEvent/{id}")
     public String registerEvent(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails,
                                 RedirectAttributes redirectAttributes) {
-        User user = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-        Event event = eventRepository.findById(id).orElseThrow();
-
-        if (!user.getRegisteredEvents().contains(event)) {
-            user.getRegisteredEvents().add(event);
-            userRepo.save(user);
+        try {
+            eventService.registerUserForEvent(userDetails.getUsername(), id);
             redirectAttributes.addFlashAttribute("message", "Successfully registered!");
-
-        }
-        else{
-            redirectAttributes.addFlashAttribute("message", "Already registered!");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
         }
 
         return "redirect:/";
@@ -57,15 +50,17 @@ public class EventController {
     /**
      * Cancels a user's registration for a specific event.
      */
-    @PostMapping("/cancelRegistration/{eventId}")
-    public String cancelRegistration(@PathVariable Long eventId, @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-        Event event = eventRepository.findById(eventId).orElseThrow();
+    @PostMapping("/cancelRegistration/{id}")
+    public String cancelRegistration(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            eventService.unregisterUserFromEvent(userDetails.getUsername(), id);
+            redirectAttributes.addFlashAttribute("message", "Unregistered successfully!");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("message", e.getMessage());
+        }
 
-        user.getRegisteredEvents().remove(event);
-        userRepo.save(user); // Save the updated user with one less registered event
-
-        return "redirect:/my-events?message=Unregistered+successfully";
+        return "redirect:/";
     }
 
 
@@ -74,8 +69,7 @@ public class EventController {
      */
     @GetMapping("/my-events")
     public String myEvents(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-        model.addAttribute("myEvents", user.getRegisteredEvents());
+        model.addAttribute("myEvents", eventService.getUserEvents(userDetails.getUsername()));
         return "my-events";
     }
 
@@ -94,7 +88,7 @@ public class EventController {
      */
     @PostMapping("/admin/new")
     public String createEvent(@ModelAttribute Event event) {
-        eventRepository.save(event);
+        eventService.createEvent(event);
         return "redirect:/";
     }
 
@@ -104,16 +98,7 @@ public class EventController {
     @PostMapping("/admin/delete/{eventId}")
     public String deleteEvent(@PathVariable Long eventId) {
 
-        Event event = eventRepository.findById(eventId).orElseThrow();
-
-        // Loop through participants and remove this event from each user's registered events
-        for (User user : event.getParticipants()) {
-            user.getRegisteredEvents().remove(event);
-            userRepo.save(user);
-        }
-
-        // Now it's safe to delete the event
-        eventRepository.delete(event);
+        eventService.deleteEvent(eventId);
 
         return "redirect:/";
     }
@@ -124,16 +109,11 @@ public class EventController {
      */
     @GetMapping("/")
     public String allEvents(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        List<Event> all = eventRepository.findAll();
-        List<Event> upcoming = all.stream()
-                .filter(e -> e.getDate().isAfter(LocalDate.now()))
-                .toList();
 
-        model.addAttribute("events", upcoming);
+        model.addAttribute("events", eventService.getUpcomingEvents());
 
         if (userDetails != null) {
-            User user = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
-            model.addAttribute("registeredEvents", user.getRegisteredEvents());
+            model.addAttribute("registeredEvents", eventService.getUserEvents(userDetails.getUsername()));
         } else {
             model.addAttribute("registeredEvents", List.of());
         }

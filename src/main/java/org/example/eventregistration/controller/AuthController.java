@@ -3,6 +3,7 @@ package org.example.eventregistration.controller;
 import jakarta.validation.Valid;
 import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.UserRepository;
+import org.example.eventregistration.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,12 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class AuthController {
 
-    private final UserRepository userRepo;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    public AuthController(UserRepository userRepo, PasswordEncoder encoder) {
-        this.userRepo = userRepo;
-        this.passwordEncoder = encoder;
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -44,16 +43,12 @@ public class AuthController {
         }
 
         // Check for duplicate username
-        if (userRepo.findByUsername(user.getUsername()).isPresent()) {
+        if (userService.findByUsername(user.getUsername()).isPresent()) {
             result.rejectValue("username", "error.user", "Username already exists");
             return "register";
         }
 
-        // Encrypt password before storing
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
-        userRepo.save(user);
-
+        userService.registerUser(user.getUsername(), user.getPassword(), "USER");
         return "redirect:/login";
     }
 

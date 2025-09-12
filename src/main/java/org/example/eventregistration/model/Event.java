@@ -2,6 +2,7 @@ package org.example.eventregistration.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
@@ -20,7 +21,7 @@ public class Event {
     @NotBlank(message = "Title is required")
     private String title;
     private String description;
-    @Future
+    @FutureOrPresent
     private LocalDate date;
 
     @ManyToMany(mappedBy = "registeredEvents")

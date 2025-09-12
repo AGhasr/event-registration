@@ -4,6 +4,7 @@ import org.example.eventregistration.dto.AuthRequest;
 import org.example.eventregistration.dto.AuthResponse;
 import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.UserRepository;
+import org.example.eventregistration.service.AuthService;
 import org.example.eventregistration.service.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,36 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthRestController {
 
-    private final UserRepository userRepo;
-    private final JwtService jwtService;
-    private final AuthenticationManager authManager;
-    private final PasswordEncoder encoder;
+    private final AuthService authService;
 
-    public AuthRestController(UserRepository userRepo, JwtService jwtService,
-                              AuthenticationManager authManager, PasswordEncoder encoder) {
-        this.userRepo = userRepo;
-        this.jwtService = jwtService;
-        this.authManager = authManager;
-        this.encoder = encoder;
+    public AuthRestController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request) {
-        if (userRepo.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        try {
+            authService.register(request);
+            return ResponseEntity.ok("User registered");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        User user = new User(request.getUsername(), encoder.encode(request.getPassword()), "USER");
-        userRepo.save(user);
-        return ResponseEntity.ok("User registered");
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-
-        String token = jwtService.generateToken(request.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(authService.login(request));
     }
 }

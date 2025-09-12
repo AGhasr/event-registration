@@ -8,6 +8,7 @@ import org.example.eventregistration.model.User;
 import org.example.eventregistration.repository.UserRepository;
 import org.example.eventregistration.service.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -49,7 +50,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 if (jwtService.isTokenValid(token, user.getUsername())) {
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            user.getUsername(), null, List.of()
+                            user.getUsername(),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
                     );
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
