@@ -1,192 +1,84 @@
-# Gather – Social Event & Trip Planner
+# Gather
 
-🔗 **Live Demo**
-Access the app here: [https://gather-xrz0.onrender.com](https://gather-xrz0.onrender.com)
+Gather is a Spring Boot application for group event and trip planning. Its core feature is a shared expense and debt calculation system (similar to Splitwise) integrated directly into the planning process, allowing groups to coordinate events and settle balances in one place.
 
-> **Note:** Hosted on Render's free tier. The server may take a few minutes to wake up if inactive.
-
----
-
-Gather is a Spring Boot web application that helps groups plan trips and events together, with a strong focus on **shared expenses and debt splitting (Splitwise-like functionality)**.
-
-It allows friends or travel groups to not only organize events, but also **track who paid what, calculate balances automatically, and settle debts transparently**, all in one platform.
+**Live Demo:** [https://gather-xrz0.onrender.com](https://gather-xrz0.onrender.com) 
+*(Note: This is hosted on Render's free tier, so the server may take a minute or two to wake up if inactive.)*
 
 ---
 
-## ✨ Key Features
+## Features
 
-### 📅 Events & Planning
-Create and manage group events, registrations, and schedules with a central dashboard overview.
-
-![Events Page](screenshots/events.png)
-
----
-
-### 💸 Shared Expenses (Splitwise-like)
-Track shared expenses per group, automatically split costs, and maintain a transparent shared wallet.
-
-- Automatic expense splitting
-- Group spending overview
-- Per-user balances
-
-![Expenses Wallet](screenshots/expenses.png)
+* **Event Management:** Create events, manage registrations, and view group schedules on a central dashboard.
+  ![Events Page](screenshots/events.png)
+* **Expense Tracking:** Log shared costs for a group. The app automatically calculates per-user balances and splits costs evenly.
+  ![Expenses Wallet](screenshots/expenses.png)
+* **Debt Settlement:** View a global breakdown of who owes what across different groups and track manual settlements.
+  ![Debts Page](screenshots/debts.png)
+* **Group Chat & Polls:** Real-time WebSockets-based messaging and polling for coordination.
+  ![Chat with Poll](screenshots/chat.png)
+* **Access Control:** User registration with email verification, JWT authentication, and protected group invite links.
 
 ---
 
-### ⚖️ Debt Calculation & Settlement
-Automatically calculated debts and global balances, showing who owes whom across groups.
+## Tech Stack & Architecture
 
-- Debts you need to pay
-- Debts owed to you
-- Manual settlement tracking
+* **Backend:** Java 17, Spring Boot (MVC, REST, Security, Data JPA), Hibernate
+* **Database:** H2 (default for development)
+* **Frontend:** Thymeleaf
+* **Real-time:** WebSockets (STOMP)
+* **Auth:** JWT
 
-![Debts Page](screenshots/debts.png)
-
----
-
-### 💬 Real-Time Chat & Polls
-Real-time group communication for coordination and decision making.
-
-- WebSocket-based group chat (STOMP)
-- Polls for quick group decisions
-- Live vote updates
-
-![Chat with Poll](screenshots/chat.png)
+The application is modularized into several core domains: `auth`, `groups`, `events`, `chat`, `expenses`, and `debts`. Each module handles its own MVC controllers, REST API endpoints, business logic, and database interactions.
 
 ---
 
-### 👤 Authentication, Groups & Security
-Secure access and group management.
+## Example API Endpoints
 
-- User registration with email verification
-- JWT-based authentication
-- Group creation, admin roles, and invite links
-- Route protection via Spring Security
-
----
-
-##  Architecture Overview
-
-* **Backend**: Spring Boot (MVC + REST)
-* **Security**: Spring Security, JWT
-* **Persistence**: Spring Data JPA, Hibernate
-* **Database**: H2 (dev) / configurable for production
-* **Views**: Thymeleaf
-* **Real-time**: WebSockets (STOMP)
-* **Async Tasks**: Spring `@EnableAsync`
-
----
-
-##  Main Modules
-
-* `auth` – registration, login, verification, JWT
-* `groups` – group lifecycle and membership
-* `events` – event management & calendar export
-* `chat` – real-time messaging and polls
-* `expenses` – shared costs and totals
-* `debts` – balance calculation and settlement
-
-Each module exposes:
-
-* MVC controllers (web UI)
-* REST controllers (API)
-* Service layer (business logic)
-* Repository layer (JPA)
-
----
-
-##  REST API Overview (Examples)
+Most endpoints (except authentication) require a valid JWT token.
 
 ### Authentication
-
 * `POST /api/auth/register`
 * `POST /api/auth/login`
 * `POST /api/auth/verify`
 
-### Groups
-
+### Groups & Events
 * `GET /api/groups`
 * `POST /api/groups`
-* `POST /api/groups/{groupId}/members`
-
-### Events
-
-* `GET /api/events`
 * `POST /api/events/new?groupId=1`
 * `POST /api/events/register/{eventId}`
-* `POST /api/events/unregister/{eventId}`
 
 ### Expenses
-
 * `GET /api/groups/{groupId}/expenses`
-* `GET /api/groups/{groupId}/expenses/total`
 * `POST /api/groups/{groupId}/expenses`
 
-> All API endpoints (except auth) require a valid JWT token.
-
 ---
 
-##  Demo Data
+## Running Locally
 
-By default, the application seeds demo data on startup:
-
-* Users: `ali / 1234`, `tom / 1234`
-* Example group and events
-
-You can disable seeding in production:
-
-```properties
-app.db.seed=false
-```
-
----
-
-##  Running the Project Locally
-
-### Prerequisites
-
+**Prerequisites:**
 * Java 17+
 * Maven
 
-### Run
+Clone the repository and run the following command:
 
 ```bash
 mvn spring-boot:run
 ```
 
-App will be available at:
+The application will start on `http://localhost:8080`.
 
+**Demo Data:**
+By default, the application seeds test data on startup, including test accounts (e.g., username `ali` / password `1234` or `tom` / `1234`). You can disable this behavior for production by updating your configuration:
+
+```properties
+app.db.seed=false
 ```
-http://localhost:8080
-```
 
----
+## Roadmap
 
-
-
-## 🛠️ Technologies Used
-
-* Java 17
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* Hibernate
-* WebSockets (STOMP, SockJS)
-* JWT
-* Thymeleaf
-* Maven
-
----
-
-##  Project Status
-
-The project is actively evolving and designed to be extended with additional features and integrations.
-
-###  Planned Features / Roadmap
-
-* [ ] **Profile Pictures**: Allow users to upload and manage custom profile pictures.
-* [ ] **Location Sharing**: Ability to send map pins or current location in group chat.
-* [ ] **Push Notifications**: Web push notifications for new chat messages
-* [ ] **Recurring Events**: Support for weekly and monthly meetups
-* [ ] **Advanced Expense Splitting**: Split expenses by percentage or shares (currently even split)
-
+* Profile picture uploads
+* Location and map pin sharing in group chat
+* Web push notifications for new messages
+* Support for recurring events
+* Advanced expense splitting (percentage-based or exact amounts, rather than just even splits)
